@@ -3,17 +3,45 @@
   inset: 0;
   z-index: 2147483647;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
   background: rgba(0, 0, 0, 0.85);
-  overflow: hidden;
 }
 .ghiv-overlay[hidden] {
   display: none;
 }
+.ghiv-header {
+  display: flex;
+  justify-content: flex-end;
+  padding: 12px 12px 8px;
+}
+.ghiv-close {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font: 24px/36px system-ui, sans-serif;
+  cursor: pointer;
+}
+.ghiv-close:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+/* Clips the zoomed image so it stays between the header and footer. */
+.ghiv-stage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  margin: 0 12px;
+  overflow: hidden;
+}
 .ghiv-img {
-  max-width: 95vw;
-  max-height: 95vh;
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  max-width: 100%;
+  max-height: 100%;
   cursor: grab;
   user-select: none;
   touch-action: none;
@@ -21,12 +49,19 @@
 .ghiv-img:active {
   cursor: grabbing;
 }
-.ghiv-counter {
-  position: absolute;
-  bottom: 12px;
-  padding: 2px 10px;
-  border-radius: 12px;
-  background: rgba(0, 0, 0, 0.7);
+.ghiv-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px 12px;
   color: #fff;
   font: 14px system-ui, sans-serif;
+}
+.ghiv-caption {
+  max-width: 80vw;
+  text-align: center;
+}
+.ghiv-caption:empty {
+  display: none;
 }

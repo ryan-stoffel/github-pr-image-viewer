@@ -2,7 +2,7 @@
 // Runs on all of github.com because GitHub navigates between pages without full reloads.
 const IMAGES = ".markdown-body img:not(.emoji)";
 
-let overlay, view, counter;
+let overlay, stage, view, caption, counter;
 let images = [];
 let index = 0;
 let scale = 1, x = 0, y = 0;
@@ -45,6 +45,7 @@ function show(i) {
   if (!overlay) build();
   index = (i + images.length) % images.length;
   view.src = images[index].currentSrc || images[index].src;
+  caption.textContent = images[index].title || images[index].alt;
   counter.textContent = `${index + 1} / ${images.length}`;
   scale = 1, x = 0, y = 0;
   render();
@@ -57,14 +58,31 @@ function build() {
   view = document.createElement("img");
   view.className = "ghiv-img";
   view.draggable = false;
+  // The image lives in its own stage between the header and footer, so it never covers them.
+  stage = document.createElement("div");
+  stage.className = "ghiv-stage";
+  stage.append(view);
+  const close = document.createElement("button");
+  close.className = "ghiv-close";
+  close.textContent = "×";
+  close.setAttribute("aria-label", "Close");
+  const header = document.createElement("div");
+  header.className = "ghiv-header";
+  header.append(close);
+  caption = document.createElement("div");
+  caption.className = "ghiv-caption";
   counter = document.createElement("div");
   counter.className = "ghiv-counter";
-  overlay.append(view, counter);
+  const footer = document.createElement("div");
+  footer.className = "ghiv-footer";
+  footer.append(caption, counter);
+  overlay.append(header, stage, footer);
   document.body.append(overlay);
 
   overlay.addEventListener("pointerdown", () => (moved = false));
+  // Any click outside the image closes the popup, including the X.
   overlay.addEventListener("click", (e) => {
-    if (e.target === overlay && !moved) overlay.hidden = true;
+    if (e.target !== view && !moved) overlay.hidden = true;
   });
   overlay.addEventListener("wheel", (e) => {
     e.preventDefault();
@@ -93,8 +111,9 @@ function zoomTo(e, next) {
   if (next === 1) {
     x = y = 0;
   } else {
-    const mx = e.clientX - innerWidth / 2;
-    const my = e.clientY - innerHeight / 2;
+    const r = stage.getBoundingClientRect();
+    const mx = e.clientX - (r.left + r.width / 2);
+    const my = e.clientY - (r.top + r.height / 2);
     x = mx - (mx - x) * (next / scale);
     y = my - (my - y) * (next / scale);
   }
